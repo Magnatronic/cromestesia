@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/music-note.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+    <title>Cromestesia - Music Visualization</title>
+    <meta name="description" content="Interactive music visualization app for music therapy sessions" />
+  </head>
+  <body>
+    <div id="app">
+      <!-- Header Controls -->
+      <header class="controls-header" role="banner">
+        <div class="app-title">
+          <h1>🎵 Cromestesia</h1>
+          <p>Music Visualization</p>
+        </div>
+        
+        <!-- Audio Controls -->
+        <div class="audio-controls">
+          <button id="start-btn" class="control-btn primary" aria-label="Start audio visualization">
+            <span class="icon">🎤</span>
+            <span class="text">Start</span>
+          </button>
+          <button id="stop-btn" class="control-btn secondary" aria-label="Stop audio visualization" disabled>
+            <span class="icon">⏹️</span>
+            <span class="text">Stop</span>
+          </button>
+        </div>
+
+        <!-- Mode Selection -->
+        <div class="mode-selector" role="radiogroup" aria-label="Visualization mode">
+          <button class="mode-btn active" data-mode="drums" aria-pressed="true">
+            <span class="icon">🥁</span>
+            <span class="text">Drums</span>
+          </button>
+          <button class="mode-btn" data-mode="singing" aria-pressed="false">
+            <span class="icon">🎤</span>
+            <span class="text">Singing</span>
+          </button>
+          <button class="mode-btn" data-mode="ambient" aria-pressed="false">
+            <span class="icon">🎵</span>
+            <span class="text">Ambient</span>
+          </button>
+        </div>
+
+        <!-- Theme Selection -->
+        <div class="theme-selector" role="radiogroup" aria-label="Visual theme">
+          <button class="theme-btn active" data-theme="space" aria-pressed="true">
+            <span class="icon">🌌</span>
+            <span class="text">Space</span>
+          </button>
+          <button class="theme-btn" data-theme="underwater" aria-pressed="false">
+            <span class="icon">🌊</span>
+            <span class="text">Ocean</span>
+          </button>
+          <button class="theme-btn" data-theme="forest" aria-pressed="false">
+            <span class="icon">🌲</span>
+            <span class="text">Forest</span>
+          </button>
+          <button class="theme-btn" data-theme="minimal" aria-pressed="false">
+            <span class="icon">◐</span>
+            <span class="text">Mono</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- Main Visualization Area -->
+      <main class="visualization-container" role="main">
+        <canvas id="visualization-canvas" aria-label="Music visualization display"></canvas>
+        
+        <!-- Audio Level Indicator -->
+        <div class="audio-level" aria-label="Audio input level">
+          <div class="level-bar"></div>
+          <span class="level-text">Audio Level</span>
+        </div>
+
+        <!-- Accessibility Info -->
+        <div class="accessibility-info" aria-live="polite" aria-atomic="true">
+          <span id="mode-status">Mode: Drums</span>
+          <span id="theme-status">Theme: Space</span>
+          <span id="audio-status">Audio: Inactive</span>
+        </div>
+      </main>
+
+      <!-- Settings Panel (Hidden by default) -->
+      <aside class="settings-panel" role="complementary">
+        <button class="settings-toggle" aria-label="Toggle settings panel">
+          <span class="icon">⚙️</span>
+        </button>
+        
+        <div class="settings-content">
+          <h3>Accessibility Settings</h3>
+          
+          <div class="setting-group">
+            <label for="contrast-toggle">High Contrast Mode</label>
+            <input type="checkbox" id="contrast-toggle" />
+          </div>
+          
+          <div class="setting-group">
+            <label for="animation-speed">Animation Speed</label>
+            <input type="range" id="animation-speed" min="0.1" max="2" step="0.1" value="1" />
+          </div>
+          
+          <div class="setting-group">
+            <label for="sensitivity">Audio Sensitivity</label>
+            <input type="range" id="sensitivity" min="0.1" max="3" step="0.1" value="1" />
+          </div>
+        </div>
+      </aside>
+    </div>
+    
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
