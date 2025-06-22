@@ -2,6 +2,11 @@
 
 An interactive web-based music visualization application designed specifically for music therapy sessions with students who have physical and learning disabilities.
 
+## 🌟 Live Demo
+**Try it now:** [https://magnatronic.github.io/cromestesia/](https://magnatronic.github.io/cromestesia/)
+
+*Note: You'll need to grant microphone permission when prompted*
+
 ## 🎵 Features
 
 ### Real-Time Audio Processing
