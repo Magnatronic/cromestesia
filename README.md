@@ -135,8 +135,6 @@ visualizeYourMode(frequencies) {
 
 ### Designed For
 - **Music therapy sessions** with individuals and groups
-- **Students with physical disabilities** requiring accessible interfaces
-- **Students with learning disabilities** benefiting from multi-sensory experiences
 - **Sensory integration activities** combining auditory and visual stimuli
 - **Creative expression** through music and visual arts
 
@@ -194,11 +192,7 @@ npm run preview  # Preview production build locally
 
 This project is designed for educational and therapeutic use. Please ensure compliance with local regulations regarding audio capture and accessibility requirements.
 
-## 🙏 Acknowledgments
 
-- **Music therapists** who provided requirements and feedback
-- **Web Audio API community** for technical guidance
-- **Accessibility advocates** for inclusive design principles
 
 ---
 

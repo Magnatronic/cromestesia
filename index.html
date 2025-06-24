@@ -1,66 +1,64 @@
 <!doctype html>
-<html lang="en">
-  <head>
+<html lang="en">  <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/music-note.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
     <title>Cromestesia - Music Visualization</title>
     <meta name="description" content="Interactive music visualization app for music therapy sessions" />
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   </head>
   <body>
-    <div id="app">
-      <!-- Header Controls -->
+    <div id="app">      <!-- Header Controls -->
       <header class="controls-header" role="banner">
         <div class="app-title">
-          <h1>🎵 Cromestesia</h1>
+          <h1><i class="fas fa-music" aria-hidden="true"></i> Cromestesia</h1>
           <p>Music Visualization</p>
         </div>
         
         <!-- Audio Controls -->
         <div class="audio-controls">
-          <button id="start-btn" class="control-btn primary" aria-label="Start audio visualization">
-            <span class="icon">🎤</span>
-            <span class="text">Start</span>
+          <button id="start-btn" class="icon-btn primary" aria-label="Start audio visualization" title="Start">
+            <i class="fas fa-play" aria-hidden="true"></i>
           </button>
-          <button id="stop-btn" class="control-btn secondary" aria-label="Stop audio visualization" disabled>
-            <span class="icon">⏹️</span>
-            <span class="text">Stop</span>
+          <button id="stop-btn" class="icon-btn secondary" aria-label="Stop audio visualization" title="Stop" disabled>
+            <i class="fas fa-stop" aria-hidden="true"></i>
           </button>
         </div>
 
         <!-- Mode Selection -->
         <div class="mode-selector" role="radiogroup" aria-label="Visualization mode">
-          <button class="mode-btn active" data-mode="drums" aria-pressed="true">
-            <span class="icon">🥁</span>
-            <span class="text">Drums</span>
+          <button class="icon-btn mode-btn active" data-mode="drums" aria-pressed="true" aria-label="Drums mode" title="Drums">
+            <i class="fas fa-drum" aria-hidden="true"></i>
           </button>
-          <button class="mode-btn" data-mode="singing" aria-pressed="false">
-            <span class="icon">🎤</span>
-            <span class="text">Singing</span>
+          <button class="icon-btn mode-btn" data-mode="singing" aria-pressed="false" aria-label="Singing mode" title="Singing">
+            <i class="fas fa-microphone-lines" aria-hidden="true"></i>
           </button>
-          <button class="mode-btn" data-mode="ambient" aria-pressed="false">
-            <span class="icon">🎵</span>
-            <span class="text">Ambient</span>
+          <button class="icon-btn mode-btn" data-mode="ambient" aria-pressed="false" aria-label="Ambient mode" title="Ambient">
+            <i class="fas fa-wave-square" aria-hidden="true"></i>
           </button>
         </div>
 
         <!-- Theme Selection -->
         <div class="theme-selector" role="radiogroup" aria-label="Visual theme">
-          <button class="theme-btn active" data-theme="space" aria-pressed="true">
-            <span class="icon">🌌</span>
-            <span class="text">Space</span>
+          <button class="icon-btn theme-btn active" data-theme="space" aria-pressed="true" aria-label="Space theme" title="Space">
+            <i class="fas fa-rocket" aria-hidden="true"></i>
           </button>
-          <button class="theme-btn" data-theme="underwater" aria-pressed="false">
-            <span class="icon">🌊</span>
-            <span class="text">Ocean</span>
+          <button class="icon-btn theme-btn" data-theme="underwater" aria-pressed="false" aria-label="Ocean theme" title="Ocean">
+            <i class="fas fa-water" aria-hidden="true"></i>
           </button>
-          <button class="theme-btn" data-theme="forest" aria-pressed="false">
-            <span class="icon">🌲</span>
-            <span class="text">Forest</span>
+          <button class="icon-btn theme-btn" data-theme="forest" aria-pressed="false" aria-label="Forest theme" title="Forest">
+            <i class="fas fa-tree" aria-hidden="true"></i>
           </button>
-          <button class="theme-btn" data-theme="minimal" aria-pressed="false">
-            <span class="icon">◐</span>
-            <span class="text">Mono</span>
+          <button class="icon-btn theme-btn" data-theme="minimal" aria-pressed="false" aria-label="Minimal theme" title="Minimal">
+            <i class="fas fa-circle-half-stroke" aria-hidden="true"></i>
+          </button>
+        </div>
+
+        <!-- Settings Toggle -->
+        <div class="settings-toggle-container">
+          <button class="icon-btn settings-toggle" aria-label="Toggle settings panel" title="Settings">
+            <i class="fas fa-cog" aria-hidden="true"></i>
           </button>
         </div>
       </header>
@@ -81,14 +79,8 @@
           <span id="theme-status">Theme: Space</span>
           <span id="audio-status">Audio: Inactive</span>
         </div>
-      </main>
-
-      <!-- Settings Panel (Hidden by default) -->
-      <aside class="settings-panel" role="complementary">
-        <button class="settings-toggle" aria-label="Toggle settings panel">
-          <span class="icon">⚙️</span>
-        </button>
-        
+      </main>      <!-- Settings Panel (Hidden by default) -->
+      <aside class="settings-panel" role="complementary">        
         <div class="settings-content">
           <h3>Accessibility Settings</h3>
           

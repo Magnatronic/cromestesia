@@ -100,99 +100,147 @@ body {
   backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--border-color);
   padding: var(--spacing-md);
-  display: grid;
-  grid-template-columns: auto auto 1fr auto;
+  display: flex;
   gap: var(--spacing-lg);
   align-items: center;
-  justify-items: center;  /* Centers all grid items horizontally */
+  justify-content: space-between;
+  flex-wrap: wrap;
   min-height: 80px;
   box-shadow: 0 2px 10px var(--shadow-color);
+}
+
+.app-title {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-xs);
+  min-width: 0;
+  flex: 0 0 auto;
 }
 
 .app-title h1 {
   font-size: var(--font-size-2xl);
   font-weight: 700;
-  margin-bottom: var(--spacing-xs);
+  margin: 0;
   background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  text-align: center;  /* Centers the title text */
+  text-align: center;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.app-title h1 i {
+  background: var(--primary-color);
+  -webkit-background-clip: unset;
+  -webkit-text-fill-color: unset;
+  background-clip: unset;
+  color: var(--primary-color);
 }
 
 .app-title p {
   font-size: var(--font-size-sm);
   color: var(--text-secondary);
   font-weight: 500;
-  text-align: center;  /* Centers the subtitle text */
+  text-align: center;
+  margin: 0;
 }
 
-/* Button Styles */
-.control-btn, .mode-btn, .theme-btn {
+/* Icon Button Styles */
+.icon-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  border: none;
   display: flex;
   align-items: center;
-  justify-content: center;  /* Centers content horizontally within buttons */
-  gap: var(--spacing-sm);
-  padding: var(--spacing-md) var(--spacing-lg);
-  border: 2px solid transparent;
-  border-radius: var(--radius-lg);
-  background: var(--glass-bg);
-  color: var(--text-primary);
-  font-size: var(--font-size-base);
-  font-weight: 600;
+  justify-content: center;
   cursor: pointer;
   transition: all var(--transition-normal);
+  outline: none;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.10);
+  position: relative;
+  color: var(--text-primary);
+  font-size: 1.6rem;
   backdrop-filter: blur(10px);
-  min-height: 48px;
-  min-width: 48px;
-  text-align: center;  /* Centers text within button */
 }
 
-.control-btn.primary {
+.icon-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.icon-btn:focus-visible {
+  box-shadow: 0 0 0 3px var(--primary-color);
+  background: rgba(99, 102, 241, 0.18);
+}
+
+.icon-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+.icon-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.10) !important;
+}
+
+/* Primary Button (Start) */
+.icon-btn.primary {
   background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+  color: white;
   box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
 }
 
-.control-btn.primary:hover:not(:disabled) {
+.icon-btn.primary:hover:not(:disabled) {
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
 }
 
-.control-btn.secondary {
+/* Secondary Button (Stop) */
+.icon-btn.secondary {
   background: linear-gradient(135deg, var(--danger-color), #dc2626);
+  color: white;
   box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
 }
 
-.control-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  transform: none !important;
+.icon-btn.secondary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
 }
 
-.mode-btn.active, .theme-btn.active {
+/* Active State for Mode and Theme Buttons */
+.icon-btn.active {
   background: linear-gradient(135deg, var(--secondary-color), #059669);
-  border-color: var(--secondary-color);
+  color: white;
   box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
 }
 
-.mode-btn:hover:not(.active), .theme-btn:hover:not(.active) {
-  background: var(--bg-tertiary);
-  border-color: var(--primary-color);
+.icon-btn.active:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(16, 185, 129, 0.4);
 }
 
 /* Control Groups */
-.audio-controls {
+.audio-controls, .mode-selector, .theme-selector, .settings-toggle-container {
   display: flex;
-  gap: var(--spacing-md);
+  gap: var(--spacing-sm);
+  align-items: center;
+  flex: 0 0 auto;
 }
 
 .mode-selector, .theme-selector {
-  display: flex;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-sm);
-  background: var(--glass-bg);
-  border-radius: var(--radius-xl);
+  padding: var(--spacing-xs);
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: calc(24px + var(--spacing-xs));
   backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 /* Main Visualization Area */
@@ -289,31 +337,6 @@ body {
   right: 0;
 }
 
-.settings-toggle {
-  position: absolute;
-  left: -48px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 48px;
-  height: 48px;
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  border-right: none;
-  border-radius: var(--radius-lg) 0 0 var(--radius-lg);
-  color: var(--text-primary);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: var(--font-size-lg);
-  transition: all var(--transition-normal);
-  backdrop-filter: blur(10px);
-}
-
-.settings-toggle:hover {
-  background: var(--bg-tertiary);
-}
-
 .settings-content {
   padding: var(--spacing-xl);
 }
@@ -376,11 +399,10 @@ body {
 /* Responsive Design */
 @media (max-width: 768px) {
   .controls-header {
-    grid-template-columns: 1fr;
-    grid-template-rows: auto auto auto;
+    flex-direction: column;
     gap: var(--spacing-md);
-    text-align: center;
     padding: var(--spacing-md) var(--spacing-sm);
+    align-items: center;
   }
   
   .app-title {
@@ -389,43 +411,82 @@ body {
   
   .audio-controls {
     order: 2;
-    justify-content: center;
+    gap: var(--spacing-md);
   }
   
   .mode-selector {
     order: 3;
-    justify-content: center;
-    flex-wrap: wrap;
   }
   
   .theme-selector {
     order: 4;
-    justify-content: center;
-    flex-wrap: wrap;
+  }
+
+  .settings-toggle-container {
+    order: 5;
   }
   
-  .mode-btn, .theme-btn {
-    flex: 1;
-    min-width: 120px;
+  /* Increase touch target size for tablets */
+  .icon-btn {
+    width: 56px;
+    height: 56px;
+    font-size: 1.8rem;
   }
 }
 
 @media (max-width: 480px) {
   .controls-header {
     padding: var(--spacing-sm);
+    gap: var(--spacing-sm);
   }
   
-  .mode-btn, .theme-btn {
-    padding: var(--spacing-sm) var(--spacing-md);
-    font-size: var(--font-size-sm);
+  .app-title h1 {
+    font-size: var(--font-size-xl);
   }
   
-  .mode-btn .text, .theme-btn .text {
-    display: none;
+  .app-title p {
+    font-size: 0.75rem;
+  }
+
+  /* Compact layout for mobile */
+  .icon-btn {
+    width: 48px;
+    height: 48px;
+    font-size: 1.5rem;
+  }
+  
+  .mode-selector, .theme-selector {
+    gap: 0.25rem;
+    padding: 0.25rem;
   }
   
   .settings-panel {
     width: 250px;
+  }
+}
+
+/* Tablet-specific optimizations */
+@media (min-width: 481px) and (max-width: 1024px) {
+  .controls-header {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  .app-title {
+    flex: 1 1 100%;
+    order: 1;
+  }
+  
+  .audio-controls, .mode-selector, .theme-selector, .settings-toggle-container {
+    flex: 0 0 auto;
+    order: 2;
+  }
+  
+  /* Larger touch targets for tablets */
+  .icon-btn {
+    width: 60px;
+    height: 60px;
+    font-size: 2rem;
   }
 }
 

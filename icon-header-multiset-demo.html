@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Icon-Only Header Multi-Set Demo</title>
+  <link rel="icon" type="image/svg+xml" href="/music-note.svg" />
+  <!-- Material Icons -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+  <!-- Remix Icon -->
+  <link href="https://cdn.jsdelivr.net/npm/remixicon/fonts/remixicon.css" rel="stylesheet">
+  <style>
+    body {
+      background: #181825;
+      color: #fff;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    h2, h3 { font-weight: 600; margin-top: 2rem; }
+    .icon-header {
+      display: flex;
+      gap: 1rem;
+      background: rgba(30,34,54,0.95);
+      border-radius: 2rem;
+      padding: 0.5rem 1.5rem;
+      margin: 1.5rem 0 1.5rem 0;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.18);
+      align-items: center;
+    }
+    .icon-btn {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.08);
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.2s, box-shadow 0.2s;
+      outline: none;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.10);
+      position: relative;
+      color: inherit;
+      font-size: 1.6rem;
+    }
+    .icon-btn:focus-visible {
+      box-shadow: 0 0 0 3px #6366f1;
+      background: rgba(99,102,241,0.18);
+    }
+    .icon-btn.active {
+      background: linear-gradient(135deg, #6366f1, #10b981);
+      color: #fff;
+    }
+    .icon-btn svg, .icon-btn i, .icon-btn .material-icons {
+      width: 26px;
+      height: 26px;
+      display: block;
+      font-size: 1.6rem;
+      line-height: 1;
+    }
+    .icon-btn[aria-label]:after {
+      content: attr(aria-label);
+      position: absolute;
+      left: 50%;
+      bottom: -2.2rem;
+      transform: translateX(-50%);
+      background: #23234a;
+      color: #fff;
+      font-size: 0.85rem;
+      padding: 0.18rem 0.7rem;
+      border-radius: 0.7rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+      white-space: nowrap;
+      z-index: 10;
+    }
+    .icon-btn:focus-visible[aria-label]:after,
+    .icon-btn:hover[aria-label]:after {
+      opacity: 1;
+    }
+    @media (max-width: 600px) {
+      .icon-header {
+        gap: 0.5rem;
+        padding: 0.5rem 0.5rem;
+      }
+      .icon-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 1.2rem;
+      }
+      .icon-btn svg, .icon-btn i, .icon-btn .material-icons {
+        width: 20px;
+        height: 20px;
+        font-size: 1.2rem;
+      }
+    }
+    .set-label {
+      color: #b3b3d1;
+      font-size: 1.1rem;
+      margin-bottom: 0.2rem;
+      margin-top: 1.5rem;
+      letter-spacing: 0.02em;
+    }
+  </style>
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+</head>
+<body>
+  <h2>Icon-Only Header Multi-Set Demo</h2>
+
+  <div class="set-label">Lucide</div>
+  <div class="icon-header" role="toolbar" aria-label="Lucide controls">
+    <button class="icon-btn" aria-label="Start"><i data-lucide="play"></i></button>
+    <button class="icon-btn" aria-label="Stop"><i data-lucide="square"></i></button>
+    <button class="icon-btn active" aria-label="Drums Mode"><i data-lucide="music-2"></i></button>
+    <button class="icon-btn" aria-label="Singing Mode"><i data-lucide="mic"></i></button>
+    <button class="icon-btn" aria-label="Ambient Mode"><i data-lucide="bar-chart-3"></i></button>
+    <button class="icon-btn" aria-label="Space Theme"><i data-lucide="moon"></i></button>
+    <button class="icon-btn" aria-label="Underwater Theme"><i data-lucide="waves"></i></button>
+    <button class="icon-btn" aria-label="Forest Theme"><i data-lucide="trees"></i></button>
+    <button class="icon-btn" aria-label="Mono Theme"><i data-lucide="circle-dot"></i></button>
+    <button class="icon-btn" aria-label="Settings"><i data-lucide="settings"></i></button>
+  </div>
+
+  <div class="set-label">Material Icons</div>
+  <div class="icon-header" role="toolbar" aria-label="Material controls">
+    <button class="icon-btn" aria-label="Start"><span class="material-icons">play_arrow</span></button>
+    <button class="icon-btn" aria-label="Stop"><span class="material-icons">stop</span></button>
+    <button class="icon-btn active" aria-label="Drums Mode"><span class="material-icons">music_note</span></button>
+    <button class="icon-btn" aria-label="Singing Mode"><span class="material-icons">mic</span></button>
+    <button class="icon-btn" aria-label="Ambient Mode"><span class="material-icons">equalizer</span></button>
+    <button class="icon-btn" aria-label="Space Theme"><span class="material-icons">nightlight_round</span></button>
+    <button class="icon-btn" aria-label="Underwater Theme"><span class="material-icons">waves</span></button>
+    <button class="icon-btn" aria-label="Forest Theme"><span class="material-icons">park</span></button>
+    <button class="icon-btn" aria-label="Mono Theme"><span class="material-icons">contrast</span></button>
+    <button class="icon-btn" aria-label="Settings"><span class="material-icons">settings</span></button>
+  </div>
+
+  <div class="set-label">Font Awesome</div>
+  <div class="icon-header" role="toolbar" aria-label="Font Awesome controls">
+    <button class="icon-btn" aria-label="Start"><i class="fas fa-play"></i></button>
+    <button class="icon-btn" aria-label="Stop"><i class="fas fa-stop"></i></button>
+    <button class="icon-btn active" aria-label="Drums Mode"><i class="fas fa-drum"></i></button>
+    <!-- Singing Mode: show all relevant icons for comparison -->
+    <button class="icon-btn" aria-label="Singing (Microphone)"><i class="fas fa-microphone"></i></button>
+    <button class="icon-btn" aria-label="Singing (Microphone Lines)"><i class="fas fa-microphone-lines"></i></button>
+    <button class="icon-btn" aria-label="Singing (User Music)"><i class="fas fa-user-music"></i></button>
+    <button class="icon-btn" aria-label="Singing (Music Note)"><i class="fas fa-music"></i></button>
+    <button class="icon-btn" aria-label="Singing (Headphones)"><i class="fas fa-headphones"></i></button>
+    <button class="icon-btn" aria-label="Singing (Volume High)"><i class="fas fa-volume-high"></i></button>
+    <!-- Ambient, Themes, Settings as before -->
+    <button class="icon-btn" aria-label="Ambient Mode"><i class="fas fa-wave-square"></i></button>
+    <button class="icon-btn" aria-label="Space Theme"><i class="fas fa-moon"></i></button>
+    <button class="icon-btn" aria-label="Underwater Theme"><i class="fas fa-water"></i></button>
+    <button class="icon-btn" aria-label="Forest Theme"><i class="fas fa-tree"></i></button>
+    <button class="icon-btn" aria-label="Mono Theme"><i class="fas fa-adjust"></i></button>
+    <button class="icon-btn" aria-label="Settings"><i class="fas fa-cog"></i></button>
+  </div>
+
+  <div class="set-label">Bootstrap Icons</div>
+  <div class="icon-header" role="toolbar" aria-label="Bootstrap controls">
+    <button class="icon-btn" aria-label="Start"><i class="bi bi-play-fill"></i></button>
+    <button class="icon-btn" aria-label="Stop"><i class="bi bi-stop-fill"></i></button>
+    <button class="icon-btn active" aria-label="Drums Mode"><i class="bi bi-music-note-beamed"></i></button>
+    <button class="icon-btn" aria-label="Singing Mode"><i class="bi bi-mic-fill"></i></button>
+    <button class="icon-btn" aria-label="Ambient Mode"><i class="bi bi-bar-chart-fill"></i></button>
+    <button class="icon-btn" aria-label="Space Theme"><i class="bi bi-moon-stars-fill"></i></button>
+    <button class="icon-btn" aria-label="Underwater Theme"><i class="bi bi-droplet-fill"></i></button>
+    <button class="icon-btn" aria-label="Forest Theme"><i class="bi bi-tree-fill"></i></button>
+    <button class="icon-btn" aria-label="Mono Theme"><i class="bi bi-circle-half"></i></button>
+    <button class="icon-btn" aria-label="Settings"><i class="bi bi-gear-fill"></i></button>
+  </div>
+
+  <div class="set-label">Remix Icon</div>
+  <div class="icon-header" role="toolbar" aria-label="Remix controls">
+    <button class="icon-btn" aria-label="Start"><i class="ri-play-fill"></i></button>
+    <button class="icon-btn" aria-label="Stop"><i class="ri-stop-fill"></i></button>
+    <button class="icon-btn active" aria-label="Drums Mode"><i class="ri-music-2-fill"></i></button>
+    <button class="icon-btn" aria-label="Singing Mode"><i class="ri-mic-fill"></i></button>
+    <button class="icon-btn" aria-label="Ambient Mode"><i class="ri-equalizer-fill"></i></button>
+    <button class="icon-btn" aria-label="Space Theme"><i class="ri-moon-fill"></i></button>
+    <button class="icon-btn" aria-label="Underwater Theme"><i class="ri-water-flash-fill"></i></button>
+    <button class="icon-btn" aria-label="Forest Theme"><i class="ri-tree-fill"></i></button>
+    <button class="icon-btn" aria-label="Mono Theme"><i class="ri-contrast-2-fill"></i></button>
+    <button class="icon-btn" aria-label="Settings"><i class="ri-settings-3-fill"></i></button>
+  </div>
+
+  <p style="color:#b3b3d1;max-width:520px;text-align:center;">This page shows the same header layout using Lucide, Material Icons, Font Awesome, Bootstrap Icons, and Remix Icon. All buttons have accessible labels and large touch targets. Try with keyboard, mouse, or touch. <br>Some icons may look slightly different depending on the set.</p>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (window.lucide) lucide.createIcons();
+    });
+  </script>
+</body>
+</html>
