@@ -133,11 +133,15 @@ body {
 }
 
 .app-title h1 i {
-  background: var(--primary-color);
-  -webkit-background-clip: unset;
-  -webkit-text-fill-color: unset;
-  background-clip: unset;
-  color: var(--primary-color);
+  color: var(--primary-color) !important;
+  /* Override any inherited gradient text properties */
+  background: none !important;
+  -webkit-background-clip: unset !important;
+  -webkit-text-fill-color: unset !important;
+  background-clip: unset !important;
+  /* Ensure Font Awesome font family */
+  font-family: "Font Awesome 6 Free", "Font Awesome 6 Pro", "FontAwesome" !important;
+  font-weight: 900 !important;
 }
 
 .app-title p {
