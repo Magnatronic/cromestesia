@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cromestesia Frequency Analyzer</title>
+  <link rel="icon" type="image/svg+xml" href="/music-note.svg" />
+  <!-- Font Awesome CDN -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    body {
+      background: linear-gradient(135deg, #0f0f23, #1a1a3a);
+      color: #fff;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      margin: 0;
+      padding: 1rem;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .header h1 {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+      background: linear-gradient(135deg, #6366f1, #f59e0b);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .controls {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 0.5rem;
+      background: linear-gradient(135deg, #6366f1, #4f46e5);
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .btn.stop {
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+    }
+
+    .analyzer-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      flex: 1;
+    }
+
+    .frequency-display {
+      background: rgba(30, 34, 54, 0.8);
+      border-radius: 1rem;
+      padding: 1.5rem;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .frequency-display h3 {
+      margin-top: 0;
+      margin-bottom: 1rem;
+      color: #f59e0b;
+      font-size: 1.3rem;
+    }
+
+    .frequency-bars {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .frequency-bar {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .frequency-label {
+      font-weight: 600;
+      min-width: 80px;
+      font-size: 0.9rem;
+    }
+
+    .bar-container {
+      flex: 1;
+      height: 30px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 15px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .bar-fill {
+      height: 100%;
+      border-radius: 15px;
+      transition: width 0.1s ease-out;
+      position: relative;
+    }
+
+    .bass-bar { background: linear-gradient(90deg, #ef4444, #dc2626); }
+    .mid-bar { background: linear-gradient(90deg, #10b981, #059669); }
+    .treble-bar { background: linear-gradient(90deg, #6366f1, #4f46e5); }
+    .overall-bar { background: linear-gradient(90deg, #f59e0b, #d97706); }
+
+    .frequency-value {
+      font-weight: 600;
+      min-width: 60px;
+      text-align: right;
+      font-family: 'Courier New', monospace;
+    }
+
+    .spectrum-canvas {
+      width: 100%;
+      height: 200px;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .frequency-ranges {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .range-info {
+      background: rgba(255, 255, 255, 0.05);
+      padding: 1rem;
+      border-radius: 0.5rem;
+      text-align: center;
+    }
+
+    .range-info h4 {
+      margin: 0 0 0.5rem 0;
+      font-size: 1rem;
+    }
+
+    .range-info .hz-range {
+      font-size: 0.85rem;
+      color: #cbd5e1;
+      margin-bottom: 0.5rem;
+    }
+
+    .range-info .instruments {
+      font-size: 0.8rem;
+      color: #94a3b8;
+      font-style: italic;
+    }
+
+    .detection-indicators {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      margin-bottom: 1rem;
+    }
+
+    .indicator {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 0.8rem;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      transition: all 0.2s;
+    }
+
+    .indicator.active {
+      border-color: currentColor;
+      box-shadow: 0 0 20px currentColor;
+      transform: scale(1.1);
+    }
+
+    .bass-indicator { color: #ef4444; }
+    .mid-indicator { color: #10b981; }
+    .treble-indicator { color: #6366f1; }
+
+    .test-sounds {
+      margin-top: 2rem;
+    }
+
+    .test-sounds h4 {
+      margin-bottom: 1rem;
+      color: #f59e0b;
+    }
+
+    .test-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+
+    .test-btn {
+      padding: 1rem;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 0.5rem;
+      color: white;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+    }
+
+    .test-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: #6366f1;
+    }
+
+    .test-btn.playing {
+      background: rgba(99, 102, 241, 0.2);
+      border-color: #6366f1;
+    }
+
+    .status {
+      text-align: center;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      border-radius: 0.5rem;
+      font-weight: 600;
+    }
+
+    .status.inactive {
+      background: rgba(239, 68, 68, 0.1);
+      color: #fca5a5;
+    }
+
+    .status.active {
+      background: rgba(16, 185, 129, 0.1);
+      color: #6ee7b7;
+    }
+
+    @media (max-width: 768px) {
+      .analyzer-container {
+        grid-template-columns: 1fr;
+      }
+      
+      .controls {
+        flex-direction: column;
+        align-items: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1><i class="fas fa-chart-line"></i> Cromestesia Frequency Analyzer</h1>
+    <p>Test and debug frequency detection for different instruments and sound ranges</p>
+  </div>
+
+  <div class="controls">
+    <button id="start-btn" class="btn">
+      <i class="fas fa-microphone"></i>
+      Start Audio Analysis
+    </button>
+    <button id="stop-btn" class="btn stop" disabled>
+      <i class="fas fa-stop"></i>
+      Stop Analysis
+    </button>
+    <button id="calibrate-btn" class="btn">
+      <i class="fas fa-sliders-h"></i>
+      Auto-Calibrate
+    </button>
+  </div>
+
+  <div id="status" class="status inactive">
+    <i class="fas fa-microphone-slash"></i> Audio analysis inactive - Click "Start Audio Analysis"
+  </div>
+
+  <div class="analyzer-container">
+    <div class="frequency-display">
+      <h3><i class="fas fa-wave-square"></i> Real-Time Frequency Analysis</h3>
+      
+      <div class="detection-indicators">
+        <div class="indicator bass-indicator" id="bass-indicator">BASS</div>
+        <div class="indicator mid-indicator" id="mid-indicator">MID</div>
+        <div class="indicator treble-indicator" id="treble-indicator">TREBLE</div>
+      </div>
+
+      <div class="frequency-bars">
+        <div class="frequency-bar">
+          <div class="frequency-label">Bass</div>
+          <div class="bar-container">
+            <div class="bar-fill bass-bar" id="bass-bar"></div>
+          </div>
+          <div class="frequency-value" id="bass-value">0%</div>
+        </div>
+        
+        <div class="frequency-bar">
+          <div class="frequency-label">Mid</div>
+          <div class="bar-container">
+            <div class="bar-fill mid-bar" id="mid-bar"></div>
+          </div>
+          <div class="frequency-value" id="mid-value">0%</div>
+        </div>
+        
+        <div class="frequency-bar">
+          <div class="frequency-label">Treble</div>
+          <div class="bar-container">
+            <div class="bar-fill treble-bar" id="treble-bar"></div>
+          </div>
+          <div class="frequency-value" id="treble-value">0%</div>
+        </div>
+        
+        <div class="frequency-bar">
+          <div class="frequency-label">Overall</div>
+          <div class="bar-container">
+            <div class="bar-fill overall-bar" id="overall-bar"></div>
+          </div>
+          <div class="frequency-value" id="overall-value">0%</div>
+        </div>
+      </div>
+
+      <div class="frequency-ranges">
+        <div class="range-info">
+          <h4 style="color: #ef4444;">Bass Range</h4>
+          <div class="hz-range">20-250 Hz</div>
+          <div class="instruments">Kick drums, bass guitar, low vocals</div>
+        </div>
+        <div class="range-info">
+          <h4 style="color: #10b981;">Mid Range</h4>
+          <div class="hz-range">250-4000 Hz</div>
+          <div class="instruments">Snare, vocals, guitar, piano</div>
+        </div>
+        <div class="range-info">
+          <h4 style="color: #6366f1;">Treble Range</h4>
+          <div class="hz-range">4000-16000 Hz</div>
+          <div class="instruments">Hi-hats, cymbals, high vocals</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="frequency-display">
+      <h3><i class="fas fa-chart-bar"></i> Frequency Spectrum</h3>
+      
+      <canvas id="spectrum-canvas" class="spectrum-canvas"></canvas>
+      
+      <div class="test-sounds">
+        <h4><i class="fas fa-volume-up"></i> Test Frequency Generators</h4>
+        <div class="test-grid">
+          <button class="test-btn" data-freq="60" data-type="bass">
+            <strong>60 Hz</strong><br>
+            <small>Bass/Kick Drum</small>
+          </button>
+          <button class="test-btn" data-freq="120" data-type="bass">
+            <strong>120 Hz</strong><br>
+            <small>Bass Guitar</small>
+          </button>
+          <button class="test-btn" data-freq="250" data-type="mid">
+            <strong>250 Hz</strong><br>
+            <small>Vocals/Snare</small>
+          </button>
+          <button class="test-btn" data-freq="440" data-type="mid">
+            <strong>440 Hz</strong><br>
+            <small>A4 Note</small>
+          </button>
+          <button class="test-btn" data-freq="1000" data-type="treble">
+            <strong>1000 Hz</strong><br>
+            <small>Hi-Hat</small>
+          </button>
+          <button class="test-btn" data-freq="4000" data-type="treble">
+            <strong>4000 Hz</strong><br>
+            <small>Cymbal</small>
+          </button>
+        </div>
+        <p style="font-size: 0.85rem; color: #94a3b8; text-align: center; margin-top: 1rem;">
+          <i class="fas fa-info-circle"></i> Click test tones to verify frequency detection accuracy
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    class FrequencyAnalyzer {
+      constructor() {
+        this.audioContext = null;
+        this.analyser = null;
+        this.microphone = null;
+        this.dataArray = null;
+        this.bufferLength = null;
+        this.isRunning = false;
+        this.animationId = null;
+        
+        // Test tone generator
+        this.oscillator = null;
+        this.gainNode = null;
+        this.currentTestTone = null;
+        
+        // Sample rate for frequency calculations
+        this.sampleRate = 44100; // Will be updated when audio context is created
+        this.fftSize = 2048;
+        
+        // Frequency ranges in Hz (will be converted to bins)
+        this.bassRangeHz = { start: 20, end: 250 };    // Bass: 20-250 Hz (kick, bass guitar)
+        this.midRangeHz = { start: 250, end: 4000 };   // Mid: 250-4000 Hz (vocals, snare, guitar)  
+        this.trebleRangeHz = { start: 4000, end: 16000 }; // Treble: 4000-16000 Hz (hi-hats, cymbals)
+        
+        // Bin ranges (calculated from Hz ranges)
+        this.bassRange = { start: 0, end: 0 };
+        this.midRange = { start: 0, end: 0 };
+        this.trebleRange = { start: 0, end: 0 };
+        
+        // Calibration
+        this.maxValues = { bass: 0, mid: 0, treble: 0, overall: 0 };
+        
+        this.setupCanvas();
+        this.setupEventListeners();
+      }
+
+      setupCanvas() {
+        this.canvas = document.getElementById('spectrum-canvas');
+        this.ctx = this.canvas.getContext('2d');
+        this.resizeCanvas();
+        window.addEventListener('resize', () => this.resizeCanvas());
+      }
+
+      resizeCanvas() {
+        const rect = this.canvas.getBoundingClientRect();
+        this.canvas.width = rect.width * window.devicePixelRatio;
+        this.canvas.height = rect.height * window.devicePixelRatio;
+        this.ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+      }
+
+      setupEventListeners() {
+        document.getElementById('start-btn').addEventListener('click', () => this.startAnalysis());
+        document.getElementById('stop-btn').addEventListener('click', () => this.stopAnalysis());
+        document.getElementById('calibrate-btn').addEventListener('click', () => this.calibrate());
+        
+        // Test tone buttons
+        document.querySelectorAll('.test-btn').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            const freq = parseInt(e.currentTarget.dataset.freq);
+            const type = e.currentTarget.dataset.type;
+            this.toggleTestTone(freq, type, e.currentTarget);
+          });
+        });
+      }
+
+      async startAnalysis() {
+        try {
+          this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+          this.sampleRate = this.audioContext.sampleRate;
+          
+          const stream = await navigator.mediaDevices.getUserMedia({ 
+            audio: {
+              echoCancellation: false,
+              noiseSuppression: false,
+              autoGainControl: false
+            } 
+          });
+          
+          this.microphone = this.audioContext.createMediaStreamSource(stream);
+          this.analyser = this.audioContext.createAnalyser();
+          
+          // High resolution for better frequency analysis
+          this.analyser.fftSize = this.fftSize;
+          this.analyser.smoothingTimeConstant = 0.3; // Increased for stability
+          
+          this.bufferLength = this.analyser.frequencyBinCount;
+          this.dataArray = new Uint8Array(this.bufferLength);
+          
+          // Calculate correct bin ranges based on sample rate
+          this.calculateFrequencyBins();
+          
+          this.microphone.connect(this.analyser);
+          
+          this.isRunning = true;
+          this.updateStatus('active', '<i class="fas fa-microphone"></i> Audio analysis active - Listening for audio input');
+          this.updateControls();
+          this.logFrequencyInfo();
+          this.animate();
+          
+        } catch (error) {
+          console.error('Error starting audio analysis:', error);
+          this.updateStatus('inactive', '<i class="fas fa-exclamation-triangle"></i> Error: Could not access microphone');
+        }
+      }
+
+      calculateFrequencyBins() {
+        // Calculate Hz per bin
+        const hzPerBin = this.sampleRate / this.fftSize;
+        
+        // Convert Hz ranges to bin indices
+        this.bassRange.start = Math.floor(this.bassRangeHz.start / hzPerBin);
+        this.bassRange.end = Math.floor(this.bassRangeHz.end / hzPerBin);
+        
+        this.midRange.start = Math.floor(this.midRangeHz.start / hzPerBin);
+        this.midRange.end = Math.floor(this.midRangeHz.end / hzPerBin);
+        
+        this.trebleRange.start = Math.floor(this.trebleRangeHz.start / hzPerBin);
+        this.trebleRange.end = Math.min(Math.floor(this.trebleRangeHz.end / hzPerBin), this.bufferLength - 1);
+        
+        console.log('🎵 Frequency Analysis Setup:');
+        console.log(`Sample Rate: ${this.sampleRate} Hz`);
+        console.log(`FFT Size: ${this.fftSize}`);
+        console.log(`Hz per bin: ${hzPerBin.toFixed(2)}`);
+        console.log(`Bass: ${this.bassRangeHz.start}-${this.bassRangeHz.end} Hz (bins ${this.bassRange.start}-${this.bassRange.end})`);
+        console.log(`Mid: ${this.midRangeHz.start}-${this.midRangeHz.end} Hz (bins ${this.midRange.start}-${this.midRange.end})`);
+        console.log(`Treble: ${this.trebleRangeHz.start}-${this.trebleRangeHz.end} Hz (bins ${this.trebleRange.start}-${this.trebleRange.end})`);
+      }
+
+      logFrequencyInfo() {
+        // Update the displayed frequency ranges in the UI
+        const rangeInfos = document.querySelectorAll('.range-info');
+        if (rangeInfos.length >= 3) {
+          const hzPerBin = this.sampleRate / this.fftSize;
+          
+          rangeInfos[0].querySelector('.hz-range').textContent = 
+            `${this.bassRangeHz.start}-${this.bassRangeHz.end} Hz (bins ${this.bassRange.start}-${this.bassRange.end})`;
+          
+          rangeInfos[1].querySelector('.hz-range').textContent = 
+            `${this.midRangeHz.start}-${this.midRangeHz.end} Hz (bins ${this.midRange.start}-${this.midRange.end})`;
+          
+          rangeInfos[2].querySelector('.hz-range').textContent = 
+            `${this.trebleRangeHz.start}-${this.trebleRangeHz.end} Hz (bins ${this.trebleRange.start}-${this.trebleRange.end})`;
+        }
+      }
+
+      stopAnalysis() {
+        this.isRunning = false;
+        
+        if (this.animationId) {
+          cancelAnimationFrame(this.animationId);
+        }
+        
+        if (this.microphone) {
+          this.microphone.disconnect();
+        }
+        
+        if (this.audioContext) {
+          this.audioContext.close();
+        }
+        
+        this.stopAllTestTones();
+        this.updateStatus('inactive', '<i class="fas fa-microphone-slash"></i> Audio analysis stopped');
+        this.updateControls();
+        this.resetDisplay();
+      }
+
+      animate() {
+        if (!this.isRunning) return;
+        
+        this.analyser.getByteFrequencyData(this.dataArray);
+        
+        const frequencies = this.analyzeFrequencies();
+        this.updateFrequencyDisplay(frequencies);
+        this.updateIndicators(frequencies);
+        this.drawSpectrum();
+        
+        this.animationId = requestAnimationFrame(() => this.animate());
+      }
+
+      analyzeFrequencies() {
+        const bassRaw = this.getAverageFrequency(this.bassRange.start, this.bassRange.end);
+        const midRaw = this.getAverageFrequency(this.midRange.start, this.midRange.end);
+        const trebleRaw = this.getAverageFrequency(this.trebleRange.start, this.trebleRange.end);
+        
+        // Apply frequency-specific weighting AFTER getting raw values
+        const bass = Math.min(bassRaw * 0.4, 1.0);    // Reduce bass significantly
+        const mid = Math.min(midRaw * 1.0, 1.0);      // Keep mid as baseline
+        const treble = Math.min(trebleRaw * 3.0, 1.0); // Boost treble significantly
+        
+        const overall = (bass + mid + treble) / 3;
+        
+        // Debug logging every 30 frames (~0.5 seconds)
+        if (this.debugCounter % 30 === 0) {
+          console.log(`🎵 Raw: B=${(bassRaw*100).toFixed(1)}% M=${(midRaw*100).toFixed(1)}% T=${(trebleRaw*100).toFixed(1)}%`);
+          console.log(`🔧 Weighted: B=${(bass*100).toFixed(1)}% M=${(mid*100).toFixed(1)}% T=${(treble*100).toFixed(1)}%`);
+          console.log(`📊 Bins: B=${this.bassRange.start}-${this.bassRange.end} M=${this.midRange.start}-${this.midRange.end} T=${this.trebleRange.start}-${this.trebleRange.end}`);
+        }
+        this.debugCounter = (this.debugCounter || 0) + 1;
+        
+        // Update max values for calibration
+        this.maxValues.bass = Math.max(this.maxValues.bass, bass);
+        this.maxValues.mid = Math.max(this.maxValues.mid, mid);
+        this.maxValues.treble = Math.max(this.maxValues.treble, treble);
+        this.maxValues.overall = Math.max(this.maxValues.overall, overall);
+        
+        return { bass, mid, treble, overall };
+      }
+
+      getAverageFrequency(startIndex, endIndex) {
+        let sum = 0;
+        let count = 0;
+        
+        // Skip the first few bins (0-2) to avoid DC offset
+        const actualStart = Math.max(startIndex, 2);
+        
+        for (let i = actualStart; i < Math.min(endIndex, this.dataArray.length); i++) {
+          sum += this.dataArray[i];
+          count++;
+        }
+        
+        // Return raw average without any weighting (weighting happens in analyzeFrequencies)
+        return count > 0 ? sum / count / 255 : 0;
+      }
+
+      updateFrequencyDisplay(frequencies) {
+        const bassPercent = (frequencies.bass * 100).toFixed(1);
+        const midPercent = (frequencies.mid * 100).toFixed(1);
+        const treblePercent = (frequencies.treble * 100).toFixed(1);
+        const overallPercent = (frequencies.overall * 100).toFixed(1);
+        
+        document.getElementById('bass-bar').style.width = `${bassPercent}%`;
+        document.getElementById('mid-bar').style.width = `${midPercent}%`;
+        document.getElementById('treble-bar').style.width = `${treblePercent}%`;
+        document.getElementById('overall-bar').style.width = `${overallPercent}%`;
+        
+        document.getElementById('bass-value').textContent = `${bassPercent}%`;
+        document.getElementById('mid-value').textContent = `${midPercent}%`;
+        document.getElementById('treble-value').textContent = `${treblePercent}%`;
+        document.getElementById('overall-value').textContent = `${overallPercent}%`;
+      }
+
+      updateIndicators(frequencies) {
+        // Different thresholds for different frequency ranges
+        const bassThreshold = 0.15; // 15% threshold for bass (naturally louder)
+        const midThreshold = 0.08;   // 8% threshold for mid
+        const trebleThreshold = 0.05; // 5% threshold for treble (naturally quieter)
+        
+        document.getElementById('bass-indicator').classList.toggle('active', frequencies.bass > bassThreshold);
+        document.getElementById('mid-indicator').classList.toggle('active', frequencies.mid > midThreshold);
+        document.getElementById('treble-indicator').classList.toggle('active', frequencies.treble > trebleThreshold);
+      }
+
+      drawSpectrum() {
+        const canvas = this.canvas;
+        const ctx = this.ctx;
+        const rect = canvas.getBoundingClientRect();
+        const width = rect.width;
+        const height = rect.height;
+        
+        ctx.clearRect(0, 0, width, height);
+        
+        // Draw frequency spectrum
+        const barWidth = width / this.bufferLength * 2;
+        let x = 0;
+        
+        for (let i = 0; i < this.bufferLength; i++) {
+          const barHeight = (this.dataArray[i] / 255) * height;
+          
+          // Color based on frequency range
+          let color;
+          if (i <= this.bassRange.end) {
+            color = '#ef4444'; // Red for bass
+          } else if (i <= this.midRange.end) {
+            color = '#10b981'; // Green for mid
+          } else {
+            color = '#6366f1'; // Blue for treble
+          }
+          
+          ctx.fillStyle = color;
+          ctx.fillRect(x, height - barHeight, barWidth, barHeight);
+          
+          x += barWidth;
+        }
+        
+        // Draw range separators
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+        ctx.lineWidth = 1;
+        
+        const bassEnd = (this.bassRange.end / this.bufferLength) * width * 2;
+        const midEnd = (this.midRange.end / this.bufferLength) * width * 2;
+        
+        ctx.beginPath();
+        ctx.moveTo(bassEnd, 0);
+        ctx.lineTo(bassEnd, height);
+        ctx.moveTo(midEnd, 0);
+        ctx.lineTo(midEnd, height);
+        ctx.stroke();
+      }
+
+      toggleTestTone(frequency, type, button) {
+        if (this.currentTestTone === frequency) {
+          this.stopTestTone();
+          return;
+        }
+        
+        this.stopAllTestTones();
+        this.playTestTone(frequency);
+        button.classList.add('playing');
+        this.currentTestTone = frequency;
+      }
+
+      playTestTone(frequency) {
+        if (!this.audioContext) return;
+        
+        this.oscillator = this.audioContext.createOscillator();
+        this.gainNode = this.audioContext.createGain();
+        
+        this.oscillator.connect(this.gainNode);
+        this.gainNode.connect(this.audioContext.destination);
+        
+        this.oscillator.frequency.setValueAtTime(frequency, this.audioContext.currentTime);
+        this.oscillator.type = 'sine';
+        this.gainNode.gain.setValueAtTime(0.1, this.audioContext.currentTime);
+        
+        this.oscillator.start();
+      }
+
+      stopTestTone() {
+        if (this.oscillator) {
+          this.oscillator.stop();
+          this.oscillator = null;
+          this.gainNode = null;
+        }
+        
+        this.currentTestTone = null;
+      }
+
+      stopAllTestTones() {
+        this.stopTestTone();
+        document.querySelectorAll('.test-btn').forEach(btn => {
+          btn.classList.remove('playing');
+        });
+      }
+
+      calibrate() {
+        this.maxValues = { bass: 0, mid: 0, treble: 0, overall: 0 };
+        alert('Calibration reset! Play some music for 10-15 seconds to auto-calibrate the ranges.');
+      }
+
+      updateStatus(state, message) {
+        const status = document.getElementById('status');
+        status.className = `status ${state}`;
+        status.innerHTML = message;
+      }
+
+      updateControls() {
+        document.getElementById('start-btn').disabled = this.isRunning;
+        document.getElementById('stop-btn').disabled = !this.isRunning;
+      }
+
+      resetDisplay() {
+        ['bass', 'mid', 'treble', 'overall'].forEach(type => {
+          document.getElementById(`${type}-bar`).style.width = '0%';
+          document.getElementById(`${type}-value`).textContent = '0%';
+        });
+        
+        ['bass-indicator', 'mid-indicator', 'treble-indicator'].forEach(id => {
+          document.getElementById(id).classList.remove('active');
+        });
+        
+        if (this.ctx) {
+          const rect = this.canvas.getBoundingClientRect();
+          this.ctx.clearRect(0, 0, rect.width, rect.height);
+        }
+      }
+    }
+
+    // Initialize analyzer when page loads
+    document.addEventListener('DOMContentLoaded', () => {
+      new FrequencyAnalyzer();
+    });
+  </script>
+</body>
+</html>

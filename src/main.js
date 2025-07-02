@@ -21,14 +21,29 @@ class MusicVisualization {
     this.highContrast = false;
     
     // Frequency analysis
-    this.bassRange = { start: 0, end: 30 };      // ~20-80Hz (kick drums, bass)
-    this.midRange = { start: 30, end: 150 };     // ~80-500Hz (snare, vocals)
-    this.trebleRange = { start: 150, end: 512 }; // ~500Hz+ (hi-hats, cymbals)
+    this.sampleRate = 44100; // Will be updated when audio context is created
+    this.fftSize = 2048;
+    
+    // Frequency ranges in Hz (more accurate than bin indices)
+    this.bassRangeHz = { start: 20, end: 250 };    // Bass: 20-250 Hz (kick, bass guitar)
+    this.midRangeHz = { start: 250, end: 4000 };   // Mid: 250-4000 Hz (vocals, snare, guitar)
+    this.trebleRangeHz = { start: 4000, end: 16000 }; // Treble: 4000-16000 Hz (hi-hats, cymbals)
+    
+    // Calculated bin ranges (will be set when audio starts)
+    this.bassRange = { start: 0, end: 30 };      
+    this.midRange = { start: 30, end: 150 };     
+    this.trebleRange = { start: 150, end: 512 };
     
     // Visualization particles and effects
     this.particles = [];
     this.pulses = [];
     this.waves = [];
+    
+    // Debug and testing
+    this.debugMode = false;
+    this.frequencyLog = [];
+    this.calibrationMode = false;
+    this.maxFrequencyValues = { bass: 0, mid: 0, treble: 0, overall: 0 };
     
     this.init();
   }
@@ -93,6 +108,18 @@ class MusicVisualization {
     
     document.getElementById('sensitivity').addEventListener('input', (e) => {
       this.sensitivity = parseFloat(e.target.value);
+    });
+    
+    // Add debug mode toggle (Ctrl+D)
+    document.addEventListener('keydown', (e) => {
+      if (e.ctrlKey && e.key === 'd') {
+        e.preventDefault();
+        this.toggleDebugMode();
+      }
+      if (e.ctrlKey && e.key === 'c') {
+        e.preventDefault();
+        this.calibrateFrequencies();
+      }
     });
   }
 
@@ -263,28 +290,52 @@ class MusicVisualization {
   }
 
   analyzeFrequencies() {
-    const bass = this.getAverageFrequency(this.bassRange.start, this.bassRange.end);
-    const mid = this.getAverageFrequency(this.midRange.start, this.midRange.end);
-    const treble = this.getAverageFrequency(this.trebleRange.start, this.trebleRange.end);
+    const bassRaw = this.getAverageFrequency(this.bassRange.start, this.bassRange.end);
+    const midRaw = this.getAverageFrequency(this.midRange.start, this.midRange.end);
+    const trebleRaw = this.getAverageFrequency(this.trebleRange.start, this.trebleRange.end);
+    
+    // Apply frequency-specific weighting AFTER getting raw values
+    const bass = Math.min(bassRaw * 0.4, 1.0);    // Reduce bass significantly
+    const mid = Math.min(midRaw * 1.0, 1.0);      // Keep mid as baseline
+    const treble = Math.min(trebleRaw * 3.0, 1.0); // Boost treble significantly
+    
     const overall = (bass + mid + treble) / 3;
     
-    return {
+    const frequencies = {
       bass: bass * this.sensitivity,
       mid: mid * this.sensitivity,
       treble: treble * this.sensitivity,
       overall: overall * this.sensitivity
     };
+    
+    // Debug logging
+    if (this.debugMode) {
+      this.logFrequencyData(frequencies, { bassRaw, midRaw, trebleRaw });
+      this.updateDebugDisplay(frequencies);
+    }
+    
+    // Update max values for calibration
+    this.maxFrequencyValues.bass = Math.max(this.maxFrequencyValues.bass, frequencies.bass);
+    this.maxFrequencyValues.mid = Math.max(this.maxFrequencyValues.mid, frequencies.mid);
+    this.maxFrequencyValues.treble = Math.max(this.maxFrequencyValues.treble, frequencies.treble);
+    this.maxFrequencyValues.overall = Math.max(this.maxFrequencyValues.overall, frequencies.overall);
+    
+    return frequencies;
   }
 
   getAverageFrequency(startIndex, endIndex) {
     let sum = 0;
     let count = 0;
     
-    for (let i = startIndex; i < Math.min(endIndex, this.dataArray.length); i++) {
+    // Skip the first few bins (0-2) to avoid DC offset
+    const actualStart = Math.max(startIndex, 2);
+    
+    for (let i = actualStart; i < Math.min(endIndex, this.dataArray.length); i++) {
       sum += this.dataArray[i];
       count++;
     }
     
+    // Return raw average without any weighting (weighting happens in analyzeFrequencies)
     return count > 0 ? sum / count / 255 : 0;
   }
 
@@ -615,6 +666,158 @@ class MusicVisualization {
   updateAudioStatus(status) {
     document.getElementById('audio-status').textContent = `Audio: ${status}`;
   }
+  
+  // Debug and testing methods
+  toggleDebugMode() {
+    this.debugMode = !this.debugMode;
+    
+    if (this.debugMode) {
+      this.createDebugOverlay();
+      console.log('🔍 Debug mode enabled - Frequency data will be logged');
+      console.log('📊 Press Ctrl+C to calibrate frequency ranges');
+    } else {
+      this.removeDebugOverlay();
+      console.log('🔍 Debug mode disabled');
+    }
+  }
+  
+  createDebugOverlay() {
+    // Remove existing overlay if present
+    this.removeDebugOverlay();
+    
+    const overlay = document.createElement('div');
+    overlay.id = 'debug-overlay';
+    overlay.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      width: 300px;
+      background: rgba(0, 0, 0, 0.9);
+      color: white;
+      padding: 1rem;
+      border-radius: 0.5rem;
+      font-family: 'Courier New', monospace;
+      font-size: 0.85rem;
+      z-index: 1000;
+      border: 1px solid #6366f1;
+      backdrop-filter: blur(10px);
+    `;
+    
+    overlay.innerHTML = `
+      <div style="font-weight: 600; margin-bottom: 0.5rem; color: #6366f1;">
+        🔍 FREQUENCY DEBUG
+      </div>
+      <div id="debug-bass">Bass: 0.00 (0%)</div>
+      <div id="debug-mid">Mid: 0.00 (0%)</div>
+      <div id="debug-treble">Treble: 0.00 (0%)</div>
+      <div id="debug-overall">Overall: 0.00 (0%)</div>
+      <div style="margin-top: 0.5rem; font-size: 0.75rem; color: #94a3b8;">
+        Ctrl+D: Toggle debug<br>
+        Ctrl+C: Calibrate ranges
+      </div>
+    `;
+    
+    document.body.appendChild(overlay);
+  }
+  
+  removeDebugOverlay() {
+    const existing = document.getElementById('debug-overlay');
+    if (existing) {
+      existing.remove();
+    }
+  }
+  
+  updateDebugDisplay(frequencies) {
+    const bassEl = document.getElementById('debug-bass');
+    const midEl = document.getElementById('debug-mid');
+    const trebleEl = document.getElementById('debug-treble');
+    const overallEl = document.getElementById('debug-overall');
+    
+    if (bassEl) {
+      const bassPercent = ((frequencies.bass / Math.max(this.maxFrequencyValues.bass, 0.01)) * 100).toFixed(0);
+      bassEl.textContent = `Bass: ${frequencies.bass.toFixed(3)} (${bassPercent}%)`;
+    }
+    
+    if (midEl) {
+      const midPercent = ((frequencies.mid / Math.max(this.maxFrequencyValues.mid, 0.01)) * 100).toFixed(0);
+      midEl.textContent = `Mid: ${frequencies.mid.toFixed(3)} (${midPercent}%)`;
+    }
+    
+    if (trebleEl) {
+      const treblePercent = ((frequencies.treble / Math.max(this.maxFrequencyValues.treble, 0.01)) * 100).toFixed(0);
+      trebleEl.textContent = `Treble: ${frequencies.treble.toFixed(3)} (${treblePercent}%)`;
+    }
+    
+    if (overallEl) {
+      const overallPercent = ((frequencies.overall / Math.max(this.maxFrequencyValues.overall, 0.01)) * 100).toFixed(0);
+      overallEl.textContent = `Overall: ${frequencies.overall.toFixed(3)} (${overallPercent}%)`;
+    }
+  }
+  
+  logFrequencyData(frequencies, rawValues = null) {
+    const timestamp = Date.now();
+    const logEntry = {
+      timestamp,
+      ...frequencies,
+      mode: this.currentMode,
+      theme: this.currentTheme
+    };
+    
+    this.frequencyLog.push(logEntry);
+    
+    // Keep only last 100 entries
+    if (this.frequencyLog.length > 100) {
+      this.frequencyLog = this.frequencyLog.slice(-100);
+    }
+    
+    // Enhanced debug logging with raw values
+    if (rawValues && this.frequencyLog.length % 30 === 0) {
+      console.log(`🎵 Raw: B=${(rawValues.bassRaw*100).toFixed(1)}% M=${(rawValues.midRaw*100).toFixed(1)}% T=${(rawValues.trebleRaw*100).toFixed(1)}%`);
+      console.log(`🔧 Weighted: B=${(frequencies.bass*100).toFixed(1)}% M=${(frequencies.mid*100).toFixed(1)}% T=${(frequencies.treble*100).toFixed(1)}%`);
+    }
+    
+    // Log significant frequency spikes
+    if (frequencies.bass > 0.7 || frequencies.mid > 0.7 || frequencies.treble > 0.7) {
+      console.log('🎵 Frequency spike detected:', {
+        bass: frequencies.bass.toFixed(3),
+        mid: frequencies.mid.toFixed(3),
+        treble: frequencies.treble.toFixed(3),
+        mode: this.currentMode
+      });
+    }
+  }
+  
+  calibrateFrequencies() {
+    this.maxFrequencyValues = { bass: 0, mid: 0, treble: 0, overall: 0 };
+    console.log('🎯 Frequency calibration reset! Play some music for 10-15 seconds to recalibrate.');
+    
+    // Visual feedback
+    if (this.debugMode) {
+      const overlay = document.getElementById('debug-overlay');
+      if (overlay) {
+        overlay.style.borderColor = '#10b981';
+        setTimeout(() => {
+          overlay.style.borderColor = '#6366f1';
+        }, 1000);
+      }
+    }
+  }
+  
+  exportFrequencyLog() {
+    const data = JSON.stringify(this.frequencyLog, null, 2);
+    const blob = new Blob([data], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `cromestesia-frequency-log-${Date.now()}.json`;
+    a.click();
+    
+    URL.revokeObjectURL(url);
+    console.log('📄 Frequency log exported');
+  }
+
+  // ...existing code...
 }
 
 // Initialize the application
